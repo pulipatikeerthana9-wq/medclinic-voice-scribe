@@ -19,7 +19,7 @@ license: mit
 
 **Try it now:** [https://keerthii23-medclinic-voice-scribe.hf.space](https://keerthii23-medclinic-voice-scribe.hf.space)
 
-**Watch the demo video:** [Add your video link here]
+**Watch the demo video:** [https://youtu.be/ZFM4jCut288](https://youtu.be/ZFM4jCut288)
 
 ## 🎯 What This Does
 

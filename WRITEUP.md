@@ -292,8 +292,8 @@ transcript = result["text"]
 
 ## Links & Resources
 
-- **GitHub Repository**: [Add your GitHub repo link here] (public, fully open-source)
-- **Video Demo**: [Add your video link here] (3-min walkthrough)
+- **GitHub Repository**: [https://github.com/pulipatikeerthana9-wq/medclinic-voice-scribe](https://github.com/pulipatikeerthana9-wq/medclinic-voice-scribe) (public, fully open-source)
+- **Video Demo**: [https://youtu.be/ZFM4jCut288](https://youtu.be/ZFM4jCut288) (3-min walkthrough)
 - **Live Demo**: <https://keerthii23-medclinic-voice-scribe.hf.space> (Deployed on Hugging Face Spaces)
 - **Model Card**: [google/medgemma-2b on Hugging Face](https://huggingface.co/google/medgemma-2b)
 
