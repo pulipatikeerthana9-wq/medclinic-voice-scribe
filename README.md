@@ -17,7 +17,7 @@ license: mit
 
 ## 🚀 Live Demo
 
-**Try it now:** [https://keerthii23-medclinic-voice-scribe.hf.space](https://keerthii23-medclinic-voice-scribe.hf.space)
+**Try it now:** [https://huggingface.co/spaces/Keerthii23/medclinic-voice-scribe](https://huggingface.co/spaces/Keerthii23/medclinic-voice-scribe)
 
 **Watch the demo video:** [https://youtu.be/ZFM4jCut288](https://youtu.be/ZFM4jCut288)
 
