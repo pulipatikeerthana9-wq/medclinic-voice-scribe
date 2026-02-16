@@ -1,0 +1,15 @@
+# Example 1: Respiratory Infection
+
+Patient is a 34-year-old male presenting with a 5-day history of productive cough, fever, and fatigue. States he initially had sore throat and rhinorrhea, which have since improved. Reports low-grade fever ranging from 99.5 to 100.8 F. Denies chest pain, dyspnea, or wheezing. Works in office setting; several coworkers have been ill recently.
+
+Vital Signs: BP 118/76, HR 88, RR 18, Temp 100.2 F, O2 sat 98% on RA
+
+Physical Exam: Pharynx mildly erythematous. Lungs clear to auscultation bilaterally. Heart regular rate and rhythm. Abdomen soft, non-tender.
+
+Assessment: Acute viral respiratory infection, likely rhinovirus or coronavirus. Lower risk for pneumonia given clear lung exam and normal O2 saturation.
+
+Plan: 
+1. Supportive care - rest, fluids, acetaminophen/ibuprofen as needed for fever and symptoms
+2. Continue working from home for 3-5 days if able
+3. Follow up if fever persists beyond 7 days or if dyspnea develops
+4. Return precautions: chest pain, difficulty breathing, confusion

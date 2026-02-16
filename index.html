@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedClinic - Voice Scribe & SOAP Note Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #00f260 0%, #0575e6 100%);
+            --glass-bg: rgba(255, 255, 255, 0.90);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-primary: #1a202c;
+            --accent-color: #0575e6;
+            --success-color: #00c851;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #ffffff;
+            /* Fallback */
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+            color: var(--text-primary);
+        }
+
+        /* Aurora Borealis Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            z-index: -2;
+            opacity: 0.8;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            animation: float 20s infinite;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .particle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            left: 30%;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            left: 50%;
+            animation-delay: 4s;
+        }
+
+        .particle:nth-child(4) {
+            width: 70px;
+            height: 70px;
+            left: 70%;
+            animation-delay: 6s;
+        }
+
+        .particle:nth-child(5) {
+            width: 90px;
+            height: 90px;
+            left: 85%;
+            animation-delay: 8s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.3;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: translateY(-20vh) translateX(50px) rotate(180deg);
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            padding: 20px 0;
+            animation: slideInDown 0.6s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            letter-spacing: -1px;
+            animation: slideInDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .subtitle {
+            font-size: 1.25em;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 8px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .model-info {
+            font-size: 0.85em;
+            opacity: 0.85;
+            margin-top: 8px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .card {
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.4),
+                    transparent);
+            transition: 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.005);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e8e8e8;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: #999;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .tab-btn:hover {
+            background: rgba(102, 126, 234, 0.08);
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus,
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00f260 0%, #0575e6 100%);
+            color: white;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(5, 117, 230, 0.3);
+            background-size: 200% auto;
+            transition: 0.5s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-position: right center;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(5, 117, 230, 0.5);
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4), 0 0 20px rgba(102, 126, 234, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6), 0 0 30px rgba(102, 126, 234, 0.5);
+            }
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .btn-text {
+            background: transparent;
+            color: #667eea;
+            padding: 8px 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-text:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 6px;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .sample-btn {
+            display: inline-block;
+            padding: 10px 16px;
+            background: #f0f0f0;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .sample-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status-container {
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error {
+            background: #fff3cd;
+            color: #856404;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid #ffeaa7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error::before {
+            content: "⚠";
+            font-size: 1.2em;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid #c3e6cb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInDown 0.4s ease;
+        }
+
+        .success::before {
+            content: "✓";
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        /* SOAP and Results Styling */
+        .results-section {
+            display: none;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .soap-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 768px) {
+            .soap-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Staggered Animation for Results */
+        #results-section.active .soap-section {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
+        }
+
+        #results-section.active .soap-section:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        #results-section.active .soap-section:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        #results-section.active .soap-section:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        #results-section.active .soap-section:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .soap-section {
+            background: #ffffff;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .soap-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #00f260, #0575e6);
+        }
+
+        .soap-section:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .soap-section h4 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .soap-content {
+            color: #333;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .vital-item {
+            background: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 3px solid #667eea;
+            font-family: 'Monaco', monospace;
+            font-size: 13px;
+        }
+
+        .plan-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .plan-list li {
+            padding: 12px 0;
+            padding-left: 28px;
+            position: relative;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            line-height: 1.5;
+        }
+
+        .plan-list li:last-child {
+            border-bottom: none;
+        }
+
+        .plan-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .actions-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .action-card {
+            background: white;
+            border: 2px solid #e8e8e8;
+            padding: 18px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .action-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .action-type {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .action-type.urgent {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+
+        .action-priority {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .action-desc {
+            color: #555;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .action-timing {
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #777;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .copy-btn {
+            background: #f0f0f0;
+            color: #667eea;
+            border: 1px solid #ddd;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .copy-btn.copied {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .transcript-box {
+            background: #f8f9fa;
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .transcript-box h5 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .transcript-text {
+            color: #555;
+            font-size: 13px;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+            font-style: italic;
+        }
+
+        .disclaimer {
+            background: rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #555;
+            margin-top: 40px;
+            line-height: 1.5;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e8e8e8;
+            margin: 30px 0;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        /* Success Celebration */
+        .celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(255, 255, 255, 0.98);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: celebratePop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes celebratePop {
+            to {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .celebration-icon {
+            font-size: 60px;
+            text-align: center;
+            animation: checkBounce 0.8s ease-out;
+        }
+
+        @keyframes checkBounce {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        /* Loading shimmer effect */
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Floating Particles Background -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🏥 MedClinic Voice Scribe</h1>
+            <p class="subtitle">AI-Powered SOAP Note Generation with MedGemma</p>
+            <p class="model-info"
+                style="display: flex; gap: 12px; justify-content: center; align-items: center; margin-top: 15px;">
+                <span
+                    style="background: rgba(5, 117, 230, 0.1); border: 1px solid rgba(5, 117, 230, 0.2); padding: 6px 14px; border-radius: 20px; color: #0575e6; font-weight: 600; box-shadow: 0 4px 6px rgba(5, 117, 230, 0.1);">
+                    <i class="fas fa-brain"></i> Powered by google/medgemma-2b
+                </span>
+                <span style="opacity: 0.7; font-size: 0.9em;">
+                    <i class="fas fa-microphone"></i> Whisper Speech-to-Text •
+                    <i class="fas fa-shield-alt"></i> 100% Local Processing
+                </span>
+            </p>
+        </header>
+
+        <!-- INPUT SECTION -->
+        <div class="layout">
+            <div class="card">
+                <div class="section-title">
+                    <span class="section-icon">📝</span>
+                    Clinical Input
+                </div>
+
+                <div class="tab-nav">
+                    <button class="tab-btn active" onclick="switchTab('text')">
+                        <i class="fas fa-keyboard"></i> Text
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('audio')">
+                        <i class="fas fa-microphone"></i> Audio
+                    </button>
+                </div>
+
+                <!-- Text Input Tab -->
+                <div id="text-tab" class="tab-content active">
+                    <button class="sample-btn" onclick="loadSampleTranscript()">
+                        <i class="fas fa-download"></i> Load Sample Transcript
+                    </button>
+                    <div class="input-group">
+                        <label>Paste Clinical Visit Transcript</label>
+                        <textarea id="transcript"
+                            placeholder="e.g., Patient reports 3 days of productive cough and low-grade fever. Denies chest pain. Vital signs: BP 120/80, HR 88, Temp 38.1C. Lungs clear to auscultation bilaterally. Likely viral respiratory infection. Plan: Supportive care, follow-up in 1 week."></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="submitTranscript()">
+                            <i class="fas fa-magic"></i>
+                            <span id="btn-text-primary">Generate SOAP</span>
+                        </button>
+                        <button class="btn-secondary" onclick="clearForm()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Audio Input Tab -->
+                <div id="audio-tab" class="tab-content">
+                    <div class="input-group">
+                        <label>Upload Audio File (MP3, WAV, M4A)</label>
+                        <input type="file" id="audioFile" accept="audio/*">
+                    </div>
+                    <p style="font-size: 12px; color: #999; margin: 12px 0;">
+                        <i class="fas fa-info-circle"></i> Audio will be transcribed, then SOAP note generated
+                        automatically.
+                    </p>
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="transcribeAudio()">
+                            <i class="fas fa-play"></i>
+                            <span id="btn-text-audio">Transcribe & Generate</span>
+                        </button>
+                        <button class="btn-secondary" onclick="clearAudio()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATUS SECTION -->
+            <div class="card">
+                <div class="section-title">
+                    <span class="section-icon">⚡</span>
+                    Status
+                </div>
+                <div class="status-container" id="status-container">
+                    <p style="color: #999; text-align: center;">
+                        <i class="fas fa-info-circle"></i> Enter a clinical transcript or upload audio to begin
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SECTION -->
+        <div id="results-section" class="results-section card">
+            <div class="section-title">
+                <span class="section-icon">📋</span>
+                SOAP Note & Workflow Actions
+            </div>
+
+            <!-- Transcript Display -->
+            <div class="transcript-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h5><i class="fas fa-file-alt"></i> Original Transcript</h5>
+                    <button class="copy-btn"
+                        onclick="copyToClipboard(document.getElementById('transcript-text').textContent, this)">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <p class="transcript-text" id="transcript-text"></p>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- SOAP Note Grid -->
+            <div class="soap-grid">
+                <div class="soap-section">
+                    <h4><i class="fas fa-user-md"></i> Subjective</h4>
+                    <div class="soap-content" id="subjective"></div>
+                </div>
+
+                <div class="soap-section">
+                    <h4><i class="fas fa-heartbeat"></i> Objective</h4>
+                    <div class="soap-content" id="objective"></div>
+                </div>
+
+                <div class="soap-section">
+                    <h4><i class="fas fa-stethoscope"></i> Assessment</h4>
+                    <div class="soap-content" id="assessment"></div>
+                </div>
+
+                <div class="soap-section">
+                    <h4><i class="fas fa-clipboard-list"></i> Plan</h4>
+                    <ul class="plan-list" id="plan"></ul>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Workflow Actions -->
+            <div>
+                <div class="section-title">
+                    <span class="section-icon">🚀</span>
+                    Workflow Actions
+                </div>
+                <div class="actions-container" id="actions-container"></div>
+            </div>
+        </div>
+
+        <!-- DISCLAIMER -->
+        <div class="disclaimer">
+            <strong><i class="fas fa-exclamation-triangle"></i> Clinical Disclaimer:</strong>
+            MedClinic is an AI-assisted documentation tool for clinician support only. It is not a substitute for
+            professional medical judgment.
+            All generated notes should be reviewed and edited by a qualified healthcare provider before use in clinical
+            care.
+            <br><br>
+            <strong>Model Information:</strong> SOAP generation via MedGemma (google/medgemma-2b), transcription via
+            Whisper.
+            All processing occurs locally for privacy and compliance.
+        </div>
+    </div>
+
+    <script>
+        // Use relative path for production (HF Spaces) or local development
+        const API_BASE = "";
+
+        const SAMPLE_TRANSCRIPT = `Patient is a 45-year-old male presenting with 3 days of productive cough and low-grade fever.
+Reports fatigue and mild dyspnea on exertion. Denies chest pain, hemoptysis, or weight loss.
+
+Vital Signs: BP 120/80, HR 88, RR 18, Temp 38.1C, O2 sat 98% on room air
+Physical Exam: Pharynx mildly erythematous. Lungs: clear to auscultation bilaterally. Heart: RRR, no murmurs. Abdomen: soft, non-tender.
+
+Assessment: Likely viral upper respiratory infection (URI), possibly influenza or COVID-19.
+Differential includes acute bronchitis, early pneumonia (less likely given clear lung exam).
+
+Plan:
+- Rest and hydration; supportive care with acetaminophen/ibuprofen for fever and myalgias
+- Monitor temperature; if fever persists >7 days or worsens, consider repeat evaluation
+- Return precautions: chest pain, difficulty breathing, confusion, or high fever (>39.5C)
+- Routine follow-up in 7 days or sooner if symptoms worsen`;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function loadSampleTranscript() {
+            document.getElementById('transcript').value = SAMPLE_TRANSCRIPT;
+            document.getElementById('transcript').focus();
+        }
+
+        function updateStatus(message, type = 'info') {
+            const container = document.getElementById('status-container');
+            const icon = type === 'success' ? '✓' : type === 'error' ? '⚠' : '⏳';
+            const className = type === 'info' ? '' : type;
+            container.innerHTML = `<div class="${className}" style="width: 100%; display: flex; align-items: center; gap: 10px;">
+                ${type === 'info' ? '<div class="loading"></div>' : icon}
+                <span>${message}</span>
+            </div>`;
+        }
+
+        async function submitTranscript() {
+            const transcript = document.getElementById('transcript').value.trim();
+            if (!transcript) {
+                updateStatus('Please enter a clinical transcript', 'error');
+                return;
+            }
+
+            const btn = event.target.closest('button');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading"></div> <span>Generating...</span>';
+
+            updateStatus('Generating SOAP note with MedGemma...', 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/visit/summarize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transcript })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+                updateStatus('✓ SOAP note generated successfully', 'success');
+                btn.innerHTML = '<i class="fas fa-magic"></i> <span>Generate SOAP</span>';
+                btn.disabled = false;
+            } catch (error) {
+                updateStatus(`Error: ${error.message}`, 'error');
+                console.error('API Error:', error);
+                btn.innerHTML = '<i class="fas fa-magic"></i> <span>Generate SOAP</span>';
+                btn.disabled = false;
+            }
+        }
+
+        async function transcribeAudio() {
+            const fileInput = document.getElementById('audioFile');
+            if (!fileInput.files.length) {
+                updateStatus('Please select an audio file', 'error');
+                return;
+            }
+
+            const btn = event.target.closest('button');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading"></div> <span>Transcribing...</span>';
+
+            updateStatus('Transcribing audio with Whisper...', 'info');
+
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                const transcribeResponse = await fetch(`${API_BASE}/api/transcribe`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!transcribeResponse.ok) {
+                    throw new Error(`Transcription error: ${transcribeResponse.status}`);
+                }
+
+                const transcribeData = await transcribeResponse.json();
+                document.getElementById('transcript').value = transcribeData.transcript;
+
+                updateStatus('Generating SOAP note...', 'info');
+
+                const soapResponse = await fetch(`${API_BASE}/api/visit/summarize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transcript: transcribeData.transcript })
+                });
+
+                if (!soapResponse.ok) {
+                    throw new Error(`SOAP generation error: ${soapResponse.status}`);
+                }
+
+                const soapData = await soapResponse.json();
+                displayResults(soapData);
+                updateStatus('✓ Audio transcribed and SOAP note generated successfully', 'success');
+                btn.innerHTML = '<i class="fas fa-play"></i> <span>Transcribe & Generate</span>';
+                btn.disabled = false;
+            } catch (error) {
+                updateStatus(`Error: ${error.message}`, 'error');
+                console.error('Error:', error);
+                btn.innerHTML = '<i class="fas fa-play"></i> <span>Transcribe & Generate</span>';
+                btn.disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            const resultsSection = document.getElementById('results-section');
+
+            // Display transcript
+            document.getElementById('transcript-text').textContent = data.transcript;
+
+            // Display subjective with structured parsing
+            const subjective = data.soap_note.subjective;
+            document.getElementById('subjective').innerHTML = formatSOAPField(subjective);
+
+            // Display objective with vitals parsing
+            const objective = data.soap_note.objective;
+            document.getElementById('objective').innerHTML = formatObjectiveField(objective);
+
+            // Display assessment
+            const assessment = data.soap_note.assessment;
+            document.getElementById('assessment').innerHTML = formatAssessmentField(assessment);
+
+            // Display plan as list
+            const planList = document.getElementById('plan');
+            planList.innerHTML = '';
+            data.soap_note.plan.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                planList.appendChild(li);
+            });
+
+            // Display workflow actions with icons and styling
+            const actionsContainer = document.getElementById('actions-container');
+            actionsContainer.innerHTML = '';
+            data.actions.forEach(action => {
+                const icon = getActionIcon(action.action_type);
+                const urgentClass = action.priority === 'urgent' ? ' urgent' : '';
+
+                const actionDiv = document.createElement('div');
+                actionDiv.className = 'action-card';
+                actionDiv.innerHTML = `
+                    <div class="action-header">
+                        <span class="action-type${urgentClass}">
+                            ${icon} ${action.action_type.replace('_', ' ')}
+                        </span>
+                        <span class="action-priority">${action.priority}</span>
+                    </div>
+                    <p class="action-desc">${action.description}</p>
+                    <div class="action-timing">
+                        <i class="fas fa-clock"></i> ${action.timing || 'As needed'}
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('${action.description}', this)">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                `;
+                actionsContainer.appendChild(actionDiv);
+            });
+
+            resultsSection.classList.add('active');
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function formatSOAPField(text) {
+            // Simple formatting - could be enhanced with more parsing
+            return `<p>${text}</p>`;
+        }
+
+        function formatObjectiveField(text) {
+            // Try to extract and format vitals
+            const vitals = [];
+            const vitalPatterns = [
+                /BP\s*[\d\/]+/gi,
+                /HR\s*[\d]+/gi,
+                /RR\s*[\d]+/gi,
+                /Temp\s*[\d\.]+\s*[CF]/gi,
+                /O2\s*sat\s*[\d]+%/gi
+            ];
+
+            vitalPatterns.forEach(pattern => {
+                const matches = text.match(pattern);
+                if (matches) vitals.push(...matches);
+            });
+
+            if (vitals.length > 0) {
+                return `<div>${vitals.map(v => `<div class="vital-item">${v}</div>`).join('')}</div><p>${text}</p>`;
+            }
+            return `<p>${text}</p>`;
+        }
+
+        function formatAssessmentField(text) {
+            // Limit assessment to main impression + 1-2 top differentials
+            const lines = text.split(/[.;]/);
+            return `<p>${lines.slice(0, 2).join('. ')}</p>`;
+        }
+
+        function getActionIcon(actionType) {
+            const icons = {
+                'follow_up': '📅',
+                'test_order': '🔬',
+                'prescription': '💊',
+                'patient_message': '💬',
+                'referral': '🔗'
+            };
+            return icons[actionType] || '⚡';
+        }
+
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                btn.classList.add('copied');
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                }, 2000);
+            });
+        }
+
+        function clearForm() {
+            document.getElementById('transcript').value = '';
+            document.getElementById('results-section').classList.remove('active');
+            updateStatus('Cleared', 'info');
+        }
+
+        function clearAudio() {
+            document.getElementById('audioFile').value = '';
+            document.getElementById('results-section').classList.remove('active');
+            updateStatus('Audio file cleared', 'info');
+        }
+    </script>
+</body>
+
+</html>

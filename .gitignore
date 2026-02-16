@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Models (large, downloaded on first run)
+models/
+*.bin
+*.pt
+*.pth
+
+# Logs
+*.log
+logs/
+
+# Temp files
+*.tmp
+temp/
+tmp/
+
+# Sensitive
+.env
+.env.local
+secrets.json

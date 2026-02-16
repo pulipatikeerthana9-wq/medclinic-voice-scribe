@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  medclinic:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medclinic-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+    # For GPU support, uncomment and configure:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [compute, utility]

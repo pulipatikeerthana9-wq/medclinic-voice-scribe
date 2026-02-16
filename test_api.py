@@ -1,0 +1,153 @@
+#!/usr/bin/env python
+"""
+MedClinic Test Suite
+Tests API endpoints and model integration
+"""
+
+import requests
+import json
+import time
+import sys
+
+API_BASE = "http://localhost:8000"
+
+def test_health_check():
+    """Test health check endpoint"""
+    print("\n🔍 Testing health check...")
+    try:
+        response = requests.get(f"{API_BASE}/health")
+        assert response.status_code == 200
+        print("✓ Health check passed")
+        return True
+    except Exception as e:
+        print(f"✗ Health check failed: {e}")
+        return False
+
+def test_root_endpoint():
+    """Test root endpoint"""
+    print("\n🔍 Testing root endpoint...")
+    try:
+        response = requests.get(f"{API_BASE}/")
+        assert response.status_code == 200
+        data = response.json()
+        assert "version" in data
+        print(f"✓ Root endpoint passed (version: {data['version']})")
+        return True
+    except Exception as e:
+        print(f"✗ Root endpoint failed: {e}")
+        return False
+
+def test_soap_generation():
+    """Test SOAP note generation with sample transcript"""
+    print("\n🔍 Testing SOAP generation...")
+    
+    sample_transcript = """
+    Patient is a 45-year-old male presenting with 3 days of cough and low-grade fever. 
+    Reports productive cough with clear sputum. Denies chest pain or shortness of breath. 
+    Vital signs: BP 120/80, HR 88, RR 16, Temp 38.1C. 
+    Lungs clear to auscultation bilaterally. 
+    Assessment: Likely viral respiratory infection. 
+    Plan: Supportive care, follow-up in 1 week if symptoms persist.
+    """
+    
+    try:
+        response = requests.post(
+            f"{API_BASE}/api/visit/summarize",
+            json={"transcript": sample_transcript},
+            timeout=60
+        )
+        
+        if response.status_code != 200:
+            print(f"✗ API returned status {response.status_code}")
+            print(f"  Response: {response.text}")
+            return False
+        
+        data = response.json()
+        
+        # Validate response structure
+        assert "soap_note" in data, "Missing soap_note in response"
+        assert "subjective" in data["soap_note"], "Missing subjective"
+        assert "objective" in data["soap_note"], "Missing objective"
+        assert "assessment" in data["soap_note"], "Missing assessment"
+        assert "plan" in data["soap_note"], "Missing plan"
+        assert "actions" in data, "Missing actions"
+        
+        print("✓ SOAP generation passed")
+        print(f"\n  Subjective: {data['soap_note']['subjective'][:100]}...")
+        print(f"  Assessment: {data['soap_note']['assessment'][:100]}...")
+        print(f"  Plan items: {len(data['soap_note']['plan'])}")
+        print(f"  Actions: {len(data['actions'])}")
+        
+        return True
+    except requests.exceptions.Timeout:
+        print("✗ Request timed out (model might still be loading)")
+        return False
+    except Exception as e:
+        print(f"✗ SOAP generation failed: {e}")
+        return False
+
+def test_empty_transcript():
+    """Test validation: empty transcript should fail"""
+    print("\n🔍 Testing input validation...")
+    try:
+        response = requests.post(
+            f"{API_BASE}/api/visit/summarize",
+            json={"transcript": ""},
+        )
+        
+        assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+        print("✓ Input validation passed")
+        return True
+    except Exception as e:
+        print(f"✗ Input validation failed: {e}")
+        return False
+
+def main():
+    """Run all tests"""
+    print("=" * 60)
+    print("MedClinic API Test Suite")
+    print("=" * 60)
+    
+    # Check if server is running
+    try:
+        response = requests.get(f"{API_BASE}/health", timeout=2)
+    except:
+        print("\n❌ ERROR: Cannot connect to MedClinic server")
+        print(f"   Make sure the server is running at {API_BASE}")
+        print("\n   Start the server with: python main.py")
+        sys.exit(1)
+    
+    tests = [
+        test_health_check,
+        test_root_endpoint,
+        test_empty_transcript,
+        test_soap_generation,  # This might take time on first run (model loading)
+    ]
+    
+    results = []
+    for test in tests:
+        try:
+            result = test()
+            results.append(result)
+        except Exception as e:
+            print(f"\n❌ Test error: {e}")
+            results.append(False)
+    
+    # Summary
+    print("\n" + "=" * 60)
+    passed = sum(results)
+    total = len(results)
+    print(f"Test Results: {passed}/{total} passed")
+    
+    if passed == total:
+        print("✅ All tests passed! MedClinic is ready to use.")
+        print(f"\n📱 Open browser: http://localhost:8000")
+        print(f"📚 API docs: http://localhost:8000/docs")
+    else:
+        print(f"❌ {total - passed} test(s) failed")
+        sys.exit(1)
+    
+    print("=" * 60)
+
+if __name__ == "__main__":
+    main()

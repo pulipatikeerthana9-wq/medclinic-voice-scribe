@@ -1,0 +1,19 @@
+# Example 2: Diabetes Follow-up
+
+58-year-old female, established patient, comes in for routine diabetes and hypertension follow-up. Reports good adherence to metformin and lisinopril. No new symptoms. Complains of occasional mild knee pain with climbing stairs but no swelling or giving way. Denies chest pain, shortness of breath, or leg swelling.
+
+Vitals: BP 138/86, HR 72, Weight 178 lbs (stable), glucose at visit 156 mg/dL
+
+Physical Exam: Lungs clear, heart RRR, abdomen benign, no pedal edema, feet exam grossly normal without ulceration.
+
+Lab Review: Hemoglobin A1C 7.2% (target <7%), creatinine 0.9 (baseline), lipid panel acceptable.
+
+Assessment: Type 2 diabetes mellitus, well-controlled. Hypertension, adequately managed on current regimen. Mild osteoarthritis, right knee. Continue current therapy.
+
+Plan:
+1. Continue current medications - metformin 1000 BID, lisinopril 20 daily
+2. Reinforce dietary counseling and weight loss goals
+3. Refer to PT for knee pain management before progression
+4. Recheck labs in 3 months (A1C, CMP)
+5. Schedule follow-up appointment for 3 months
+6. Patient education: diabetes management, importance of foot care
