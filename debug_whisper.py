@@ -15,6 +15,13 @@ try:
     ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
     print(f"imageio-ffmpeg exe: {ffmpeg_exe}")
     ffmpeg_dir = os.path.dirname(ffmpeg_exe)
+    target_ffmpeg = os.path.join(ffmpeg_dir, "ffmpeg.exe")
+    if not os.path.exists(target_ffmpeg):
+        import shutil
+        shutil.copy(ffmpeg_exe, target_ffmpeg)
+        print(f"Copied {ffmpeg_exe} to {target_ffmpeg}")
+    else:
+        print(f"ffmpeg.exe already exists at {target_ffmpeg}")
     if ffmpeg_dir not in os.environ["PATH"]:
         os.environ["PATH"] += os.pathsep + ffmpeg_dir
     print(f"Added {ffmpeg_dir} to PATH")

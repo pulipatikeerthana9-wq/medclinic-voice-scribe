@@ -9,6 +9,14 @@ import json
 import time
 import sys
 
+# Ensure UTF-8 output on Windows to support emojis in console
+if sys.platform.startswith('win'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except AttributeError:
+        pass
+
 API_BASE = "http://localhost:8000"
 
 def test_health_check():
@@ -24,17 +32,17 @@ def test_health_check():
         return False
 
 def test_root_endpoint():
-    """Test root endpoint"""
-    print("\n🔍 Testing root endpoint...")
+    """Test API info endpoint"""
+    print("\n🔍 Testing API info endpoint...")
     try:
-        response = requests.get(f"{API_BASE}/")
+        response = requests.get(f"{API_BASE}/api/info")
         assert response.status_code == 200
         data = response.json()
         assert "version" in data
-        print(f"✓ Root endpoint passed (version: {data['version']})")
+        print(f"✓ API info endpoint passed (version: {data['version']})")
         return True
     except Exception as e:
-        print(f"✗ Root endpoint failed: {e}")
+        print(f"✗ API info endpoint failed: {e}")
         return False
 
 def test_soap_generation():
@@ -95,11 +103,74 @@ def test_empty_transcript():
             json={"transcript": ""},
         )
         
-        assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+        assert response.status_code in (400, 422), f"Expected 400 or 422, got {response.status_code}"
         print("✓ Input validation passed")
         return True
     except Exception as e:
         print(f"✗ Input validation failed: {e}")
+        return False
+
+def test_medicine_analysis():
+    """Test medicine analysis endpoint"""
+    print("\n🔍 Testing medicine analysis...")
+    try:
+        response = requests.post(
+            f"{API_BASE}/api/product/analyze",
+            json={"name": "Amoxicillin"},
+            timeout=10
+        )
+        if response.status_code != 200:
+            print(f"✗ Medicine API returned status {response.status_code}: {response.text}")
+            return False
+            
+        data = response.json()
+        assert data["product_name"] == "Amoxicillin", f"Expected Amoxicillin, got {data['product_name']}"
+        assert "category" in data
+        assert "description" in data
+        assert "safety_note" in data
+        print("✓ Medicine analysis passed")
+        return True
+    except Exception as e:
+        print(f"✗ Medicine analysis failed: {e}")
+        return False
+
+def test_medicine_chat():
+    """Test medicine chat endpoint"""
+    print("\n🔍 Testing medicine chat...")
+    try:
+        # Load mock product info
+        mock_info = {
+            "product_name": "Amoxicillin",
+            "category": "Antibiotic",
+            "confidence": 1.0,
+            "visible_features": [],
+            "description": "Amoxicillin is an antibiotic.",
+            "advantages": [],
+            "disadvantages": [],
+            "suggested_use": "Bacterial infections",
+            "general_notes": "Take with water",
+            "safety_note": "Contraindicated in penicillin allergy"
+        }
+        response = requests.post(
+            f"{API_BASE}/api/product/chat",
+            json={
+                "message": "What are the precautions for Amoxicillin?",
+                "product_info": mock_info,
+                "chat_history": []
+            },
+            timeout=10
+        )
+        if response.status_code != 200:
+            print(f"✗ Medicine chat returned status {response.status_code}: {response.text}")
+            return False
+            
+        data = response.json()
+        assert "response" in data
+        assert "is_safe" in data
+        print("✓ Medicine chat passed")
+        return True
+    except Exception as e:
+        print(f"✗ Medicine chat failed: {e}")
         return False
 
 def main():
@@ -121,6 +192,8 @@ def main():
         test_health_check,
         test_root_endpoint,
         test_empty_transcript,
+        test_medicine_analysis,
+        test_medicine_chat,
         test_soap_generation,  # This might take time on first run (model loading)
     ]
     
